@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SR9POS.Models;
 
 namespace SR9POS.Data
 {
@@ -12,5 +13,6 @@ namespace SR9POS.Data
             : base(options)
         {
         }
+        public DbSet<Category> Category { get; set; }
     }
 }
