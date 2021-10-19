@@ -14,5 +14,6 @@ namespace SR9POS.Data
         {
         }
         public DbSet<Category> Category { get; set; }
+        public DbSet<Unit> Unit { get; set; }
     }
 }
