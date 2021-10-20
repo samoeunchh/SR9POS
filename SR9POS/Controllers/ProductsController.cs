@@ -163,5 +163,9 @@ namespace SR9POS.Controllers
         {
             return _context.Product.Any(e => e.ProductId == id);
         }
+        public async Task<JsonResult> GetUnits()
+        {
+            return Json(await _context.Unit.ToListAsync());
+        }
     }
 }
