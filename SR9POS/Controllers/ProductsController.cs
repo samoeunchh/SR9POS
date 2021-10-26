@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SR9POS.Data;
 using SR9POS.Models;
+using System.Linq.Dynamic.Core;
 
 namespace SR9POS.Controllers
 {
@@ -20,12 +21,61 @@ namespace SR9POS.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var applicationDbContext = _context.Product.Include(p => p.Category).Include(p => p.Unit);
-            return View(await applicationDbContext.ToListAsync());
+            return View();
         }
+        public JsonResult GetData()
+        {
+            JsonResult result;
+            try
+            {
+                var draw = HttpContext.Request.Form["draw"].FirstOrDefault();
+                var start = Request.Form["start"].FirstOrDefault();
+                var length = Request.Form["length"].FirstOrDefault();
+                var sortColumn = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
+                var sortColumnDirection = Request.Form["order[0][dir]"].FirstOrDefault();
+                var searchValue = Request.Form["search[value]"].FirstOrDefault();
+                int pageSize = length != null ? Convert.ToInt32(length) : 0;
+                int skip = start != null ? Convert.ToInt32(start) : 0;
+                int recordsTotal = 0;
 
+                var data1 = (from p in _context.Product
+                            join c in _context.Category on p.CategoryId equals c.CategoryId
+                            join u in _context.Unit on p.UnitId equals u.UnitId
+                            select new
+                            {
+                                p.ProductName,
+                                p.Description,
+                                p.OnHand,
+                                p.Barcode,
+                                p.Cost,
+                                UnitId=u.UnitName,
+                                CategoryId=c.CategoryName
+                            });
+                //Search  
+                if (!string.IsNullOrEmpty(searchValue))
+                {
+                    //data1 = data1.Where(m => m.Group.Contains(searchValue.ToLower()));
+                }
+                //Sorting  
+                if (!(string.IsNullOrEmpty(sortColumn) && string.IsNullOrEmpty(sortColumnDirection)))
+                {
+                    data1 = data1.OrderBy(sortColumn + " " + sortColumnDirection);
+                }
+                //total number of rows counts   
+                recordsTotal = data1.Count();
+                //Paging   
+                var data = data1.Skip(skip).Take(pageSize).ToList();
+                //Returning Json Data  
+                result = Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+            }
+            catch
+            {
+                result = null;
+            }
+            return result;
+        }
         // GET: Products/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
@@ -59,11 +109,20 @@ namespace SR9POS.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductName,Description,CategoryId,UnitId,OnHand,Barcode,Cost")] Product product)
+        public async Task<IActionResult> Create(Product product)
         {
             if (ModelState.IsValid)
             {
-                product.ProductId = Guid.NewGuid();
+            var pid= Guid.NewGuid();
+                if(product.ProductPrices != null)
+                {
+                    for(int i = 0; i < product.ProductPrices.Count; i++)
+                    {
+                        product.ProductPrices[i].ProductId = pid;
+                        product.ProductPrices[i].ProductPriceId = Guid.NewGuid();
+                    }
+                }
+                product.ProductId = pid;
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

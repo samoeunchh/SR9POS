@@ -10,6 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
+        @Html.AntiForgeryToken();
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
             <label asp-for="ProductName" class="control-label"></label>
@@ -45,7 +46,9 @@
             <span asp-validation-for="Cost" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <input type="submit" value="Create" class="btn btn-primary" />
+            <button class="btn btn-primary" id="save">
+                <i class="fa fa-save"></i> Save
+            </button>
         </div>
     </div>
     <div class="col-md-8">
@@ -69,9 +72,50 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script>
-        var option = "";
+<script>
+    var option = "";
+    var productPrices = [];
         $(document).ready(function () {
+            $("#save").click(function () {
+                var token = $("[name='__RequestVerificationToken']").val();
+                var i = 0;
+                $("#tProductPrice tr").each(function () {
+                if (i > 0) {
+                    var j = i - 1;
+                    var unit = document.getElementsByName("unit[]")[j].value;
+                    var price = document.getElementsByName("price[]")[j].value;
+                    productPrices.push({ UnitId: unit, Price: price });
+                }
+                i++;
+            });
+            var data = {
+                __RequestVerificationToken: token,
+                "CategoryId": $("#CategoryId").val(),
+                "UnitId": $("#UnitId").val(),
+                "ProductName": $("#ProductName").val(),
+                "Barcode": $("#Barcode").val(),
+                "Description": $("#Description").val(),
+                "OnHand": $("#OnHand").val(),
+                "Cost": $("#Cost").val(),
+                "ProductPrices": productPrices
+            };
+            $.ajax({
+                    type: "POST",
+                    dataType: "Html",
+                    url: '@Url.Action("Create", "Products")',
+                    data: data,
+                    success: function (data) {
+                        console.log(data);
+                        alert("Record added successfully.");
+                        window.location.replace('@Url.Action("Index", "Products")');
+                    },
+                    error: function (error) {
+                        jsonValue = jQuery.parseJSON(error.responseText);
+                        alert("Error : " + jsonValue);
+                    }
+                });
+
+            });
             $.ajax({
                 type: "GET",
                 url: "getunits",
@@ -94,5 +138,5 @@
                 $("#tProductPrice").append(row);
             });
         });
-    </script>
+</script>
 }
