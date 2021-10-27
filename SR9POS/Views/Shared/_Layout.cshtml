@@ -30,7 +30,18 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Units" asp-action="Index">Unit</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Product</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Customers" asp-action="Index">Customer</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                Setting
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#">Action</a></li>
+                                <li><a class="dropdown-item">Product</a></li>
+                                <li><a class="dropdown-item">Customer</a></li>
+                            </ul>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
