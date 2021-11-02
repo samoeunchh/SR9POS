@@ -18,5 +18,7 @@ namespace SR9POS.Data
         public DbSet<Product> Product { get; set; }
         public DbSet<ProductPrice> ProductPrice { get; set; }
         public DbSet<Customer> Customer { get; set; }
+        public DbSet<Sale> Sale { get; set; }
+        public DbSet<SaleDetail> SaleDetail { get; set; }
     }
 }
