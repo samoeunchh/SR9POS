@@ -51,22 +51,39 @@
         <div class="col-md-4">
             <p class="text-right">
                 <div class="form-group row">
-                    <label asp-for="Total" class="control-label"></label>
-                    <input asp-for="Total" class="form-control" />
-                    <span asp-validation-for="Total" class="text-danger"></span>
-                </div>
-                <div class="form-group row">
-                    <label asp-for="Discount" class="control-label"></label>
-                    <input asp-for="Discount" class="form-control" />
-                    <span asp-validation-for="Discount" class="text-danger"></span>
-                </div>
-                <div class="form-group row">
-                    <label asp-for="GrandTotal" class="control-label"></label>
-                    <input asp-for="GrandTotal" class="form-control" />
-                    <span asp-validation-for="GrandTotal" class="text-danger"></span>
-                </div>
-
-            </p>
+                    <label asp-for="Total" class="col-md-2 col-form-label"></label>
+                    <div class="col-md-10">
+                        <input asp-for="Total" class="form-control" />
+                        <span asp-validation-for="Total" class="text-danger"></span>
+                    </div> 
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="Discount" class="col-md-2 control-label"></label>
+                        <div class="col-md-10">
+                            <input asp-for="Discount" class="form-control" />
+                            <span asp-validation-for="Discount" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="GrandTotal" class="col-md-2 control-label"></label>
+                        <div class="col-md-10">
+                            <input asp-for="GrandTotal" class="form-control" />
+                            <span asp-validation-for="GrandTotal" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label" for="Receive">Receive$</label>
+                        <div class="col-md-10">
+                            <input id="Receive" name="Receive" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label" for="Change">Change</label>
+                        <div class="col-md-10"> 
+                        <input id="Change" name="Change" class="form-control" />
+                        </div>
+                    </div>
+</p>
         </div>
     </div>
     <div>
@@ -75,4 +92,25 @@
 
     @section Scripts {
         @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        <script>
+            $(document).ready(function () {
+                $("#search").keypress(function (e) {
+                    if (e.keyCode === 13) {
+                        $.ajax({
+                            method: "GET",
+                            dataType:"json",
+                            url: "/api/ProductAPI/" + $("#search").val(),
+                            success: function (data) {
+                                console.log(data);
+                                var row = "<tr><td>"+ data.productName +"</td>";
+                                "<td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+                                $("#t1").append(row);
+                            }, error: function (error) {
+                                console.log(error);
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
     }
