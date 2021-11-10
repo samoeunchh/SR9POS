@@ -20,7 +20,22 @@ namespace SR9POS.Controllers
             _context = context;
         }
         [HttpGet("{code}")]
-        public async Task<Product> GetProduct(string code)
-            => await _context.Product.FirstOrDefaultAsync(x => x.Barcode.Equals(code));
+        public async Task<IActionResult> GetProduct(string code)
+        {
+            var product = await (from p in _context.Product
+                                 join pp in _context.ProductPrice on p.UnitId equals pp.UnitId
+                                 where p.Barcode.Equals(code)
+                                 select new
+                                 {
+                                     p.ProductId,
+                                     p.ProductName,
+                                     p.Barcode,
+                                     p.Cost,
+                                     p.OnHand,
+                                     pp.Price,
+                                     p.UnitId
+                                 }).FirstOrDefaultAsync();
+            return Ok(product);
+        }
     }
 }
